@@ -10,9 +10,9 @@ class Calender extends Component {
     super(props);
     this.state = {
       users: [],
-      events: [],
-      status: ""
+      events: []
     };
+    this._selectCallBack = this._selectCallBack.bind(this);
   }
 
   componentDidMount(){
@@ -61,16 +61,32 @@ class Calender extends Component {
        });
 
 
-      currentComponent.setState({users: users, events: events, status: "success"});
-      
+      currentComponent.setState({users: users, events: events});
     });
 
   }
 
-  loadFullCalender(){
+  _selectCallBack(start, end, jsEvent, view, resource){
+    let event = {};
+
+    event.start = moment(start,'YYYY-MM-DDTHH:mm:ss');
+    event.end = moment(end,'YYYY-MM-DDTHH:mm:ss');
+    event.resourceId = resource.id;
+    event.type = "task";
+    event.title = "Custom Added Task";
+    
+    this.state.events.push(event);
+
+    $('#calendar').fullCalendar('destroy');
+    this._loadFullCalender();
+
+  }
+
+  _loadFullCalender(){
     $('#calendar').fullCalendar({
       now: '2018-05-08',
       selectable: true,
+      selectConstraint : "businessHours",
       height: 400,
       defaultView: 'timelineDay',
       resourceLabelText: 'Resources',
@@ -78,7 +94,8 @@ class Calender extends Component {
       events: this.state.events,
       schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
       businessHours: true,
-      eventOverlap: false
+      eventOverlap: false,
+      select : this._selectCallBack
   })
   }
 
@@ -86,7 +103,7 @@ class Calender extends Component {
     return (
       <div>
       <div id='calendar'></div>
-        {this.loadFullCalender()}
+        {this._loadFullCalender()}
       </div>
       );
   }
